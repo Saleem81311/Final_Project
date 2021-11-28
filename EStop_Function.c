@@ -1,7 +1,7 @@
 #include "Functions_Lib.h"
 char EStop_Function(char EStop_State)   // This is the EStop function to stop everything in case of an emergency
 {
- void Pin_Init();        // Custom function defining
+void Pin_Init();        // Custom function defining
 void SysTick_Init();        // Custom function defining
 void SysTick_Delay(uint16_t delay);     // Custom function defining
 
