@@ -17,8 +17,6 @@ volatile char Operation_State;
 volatile int count1;     // Beginning the system count down value at 3 for when the system goes into the count down state
 void main()
 {
-    WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;     // stop watchdog timer
-
     Operation_State = 'A';     // Initializing the first start of the system to be in the Active state
 
     int i;
