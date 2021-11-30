@@ -2,8 +2,6 @@
 #include "msp.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include <math.h>
-#include <stdint.h>
 #define Estop 0x40     // Estop button BIT on Port 1
 #define Reset 0x80     // Reset button BIT on Port 1
 
