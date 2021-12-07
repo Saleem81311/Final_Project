@@ -2,8 +2,6 @@
 
 void ADC14_IRQHandler(void);
 void ADC14_init (void);
-void delay_micro(unsigned micro);
-void delay_ms(unsigned ms);
 void Door_Control (int pos);
 char EStop_Function(char Operation_State);   // This is the EStop function to stop everything in case of an emergency
 int Read_Keypad (void);      //detects and reads key pressed
