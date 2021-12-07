@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #define RS 0x20        // P6.4 mask
 #define RW 0x40        // Goes to GND since always writing to LCD
 #define EN 0x80        // P6.5 mask
@@ -170,42 +171,11 @@ void ADC14_IRQHandler(void){
     }
 }
 
-void intializeDisplay()             //function to initialize lcd
-{
-    commandWrite(3);
-    delay_ms(10);
-    commandWrite(3);
-    delay_micro(200);
-    commandWrite(3);
-    delay_ms(10);
-
-    commandWrite(2);
-    delay_micro(100);
-    commandWrite(2);
-    delay_micro(100);
-
-    commandWrite(8);
-    delay_micro(100);
-    commandWrite(0x0C);
-    delay_micro(100);
-    commandWrite(1);
-    delay_micro(100);
-    commandWrite(6);
-    delay_ms(10);
-}
-
 void SysTick_Init(){                    //initialize system timer
     SysTick->CTRL &= ~BIT0;             //clears enable to stop the counter
     SysTick->LOAD = 0x00FFFFFF;         //sets the period... note: (3006600/1000 - 1) = 1ms
     SysTick->VAL = 0;                   //clears the value
     SysTick->CTRL = 0x00000005;         //enable SysTick, no uint8_terrupts
-}
-
-void pulseEnablePin()                   //pulses enable pin
-{
-    P9->OUT |=  BIT1;
-    delay_ms(10);
-    P9->OUT &= ~BIT1;
 }
 
 void delay_micro(unsigned micro){       //delays desired time in us
@@ -220,30 +190,6 @@ void delay_ms(unsigned ms){             //delays desired time in ms
     SysTick->VAL = 0;
     SysTick->CTRL = 5;
     while(!(SysTick->CTRL & BIT(16)));
-}
-
-void pushNibble(uint8_t nibble)         //pushes 4 bits onto pins
-{
-    P9->OUT &= (0x0F);
-    P9->OUT |= ((nibble & 0x0F) << 4);
-    pulseEnablePin();
-}
-
-void pushByte(uint8_t byte){            //splits byte into 2 nibbles and sends to push nibble
-    pushNibble(byte >> 4);
-    pushNibble(byte & (0x0F));
-}
-
-void commandWrite(uint8_t command){     //sends byte of command to lcd
-    P9->OUT &= ~BIT0;
-    delay_ms(10);
-    pushByte(command);
-}
-
-void dataWrite(uint8_t data){           //sends byte of data to lcd
-    P9->OUT |= BIT0;
-    delay_ms(10);
-    pushByte(data);
 }
 
 void printString(char string[]){        //prints a string of characters
