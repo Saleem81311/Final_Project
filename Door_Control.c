@@ -1,7 +1,6 @@
 #include "msp.h"
 #include "Functions_Lib.h"
 
-
 void Door_Control (int pos)
 {
   if (pos == 1)
