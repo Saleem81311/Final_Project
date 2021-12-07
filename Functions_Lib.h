@@ -1,3 +1,5 @@
+#include "msp.h"
+
 void ADC14_IRQHandler(void);
 void ADC14_init (void);
 void delay_micro(unsigned micro);
