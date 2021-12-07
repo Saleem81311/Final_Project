@@ -141,15 +141,4 @@ void TimerA2_PWM(int position){               //runs timer given the specified d
     TIMER_A2-> CCTL[3] = 0b11100000;                    //reset/set mode
     TIMER_A2-> CCTL[2] = 0b11100000;
 }
-
-void ADC14_init (void)
-{
-    ADC14->CTL0 &=~ 0x00000002;          // disable ADC14ENC during configuration
-    ADC14->CTL0 = 0b11000101111001000111011110010000;
-    ADC14->CTL1 = 000000000000000110000;
-    ADC14->MCTL[0] = 14 | BIT7;
-    ADC14->CTL0 |= BIT1;
-    ADC14->CTL0 |= BIT0;
-    ADC14->IER0 |= BIT0;
-}
 }
