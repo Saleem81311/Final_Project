@@ -1,5 +1,6 @@
 #include "Functions_Lib.h"
 
+void LCD_Function(int Menu_Switch)
 {
    int Keypad_Num = 0;
 
