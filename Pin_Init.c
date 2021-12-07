@@ -62,8 +62,18 @@ void Pin_Init()     // Pin initializations
     P8-> SEL1 &=~ BIT2;
     P8-> DIR |= BIT2;                                 //sets pin 8.2 as timerA3.2
     
-    P9->SEL0 &= ~(0xFF);            //P9.0-P9.7 GPIO, Outputs, default of LOW
-    P9->SEL1 &= ~(0xFF);            //RS = P9.0 EN = P9.1
-    P9->DIR  |=  (0xFF);            //DB4-7 = P9.4-7
-    P9->OUT  &= ~(0xFF);
+  /************************************************************* LCD Initializations **************************************************************/
+    P6->DIR |= (RS|EN); // Make P6 pins output for control
+    P9->DIR = 0xFF;     // Make P9 pins output for data
+
+    SysTick_Delay(30);      // Initialization sequence
+    LCD_Command(0x30);
+    SysTick_Delay(10);
+    LCD_Command(0x30);
+    SysTick_Delay(1);
+    LCD_Command(0x30);
+    LCD_Command(0x38);      // Set 8-bit data, 2-line, 5x7 font
+    LCD_Command(0x06);      // Move cursor right after each char
+    LCD_Command(0x01);      // Clear screen, Move cursor to home
+    LCD_Command(0x0F);      // Turn on display, Cursor blink
 }
