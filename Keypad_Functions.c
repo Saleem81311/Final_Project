@@ -1,5 +1,6 @@
-#include "Functions_Lib.h"
 #include "msp.h"
+#include "Functions_Lib.h"
+
 
 int Read_Keypad (void)      //detects and reads key pressed
 { 
