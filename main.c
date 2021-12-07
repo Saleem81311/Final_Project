@@ -87,26 +87,4 @@ void TimerA1_PWM(int dutyCycle){               //runs timer given the specified 
     TIMER_A1-> CCTL[4] = 0b11100000;                    //reset/set mode
 }
 
-void Set_Motor_Speed (void){
-    int num = 0, speed = 0;
-    num = Read_Keypad();                   //get key press from the keypad
-    if ((num != 10) && (num != 12) && (num > 0) && (num < 13)){
-        if (num == 11)
-            num = 0;
-        speed = num * 10;
-        printf("Speed Entered: %d\n", num);    //confirms speed
-        TimerA1_PWM(speed);                        //changes timer to new PWM
-    }
-}
-
-void PORT6_IRQHandler(void){
-    if(P6->IFG & BIT4){
-        __delay_cycles(15000);
-        if (!(P6->IN & BIT0)){
-            printf("Emergency Stop!\n");
-            TimerA1_PWM(0);
-            P6->IFG  &= ~BIT0;  //clear the flag
-        }
-    }
-}
 }
