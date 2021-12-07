@@ -162,11 +162,4 @@ void TimerA3_PWM(float duty){               //runs timer given the specified dut
         TIMER_A3-> CCR[2] = (10000 * (duty / 100)) - 1;
     TIMER_A3-> CCTL[2] = 0b11100000;                    //reset/set
 }
-
-void ADC14_IRQHandler(void){
-    if (ADC14->IFGR0 & BIT0){
-        nADC = (ADC14->MEM[0] * 3.3) / 255;
-        duty = nADC / 3.3;
-        TimerA3_PWM((int)(duty * 100));
-    }
 }
