@@ -1,3 +1,4 @@
+#include "Functions_Lib.h"
 {
   SysTick_Init();
    P6->OUT &= ~(RS|RW);      // RS = 0, RW = 0
