@@ -1,5 +1,6 @@
 #include "Functions_Lib.h"
 
+void SysTick_Init()
 {
   SysTick->LOAD = 0x00FFFFFF;
   SysTick->CTRL = 0;
