@@ -1,3 +1,4 @@
+#include "msp.h"
 #include "Functions_Lib.h"
 
 void TimerA1_PWM(int dutyCycle)
