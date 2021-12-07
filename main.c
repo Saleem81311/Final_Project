@@ -47,44 +47,9 @@ void main(void)
      NVIC_EnableIRQ(ADC14_IRQn);
      __enable_interrupts();
 
-     while (1){
+     while(1)
+      {
          
-     }
-}
-
-int Read_Keypad (void){ //detects and reads key pressed
-    int i, j, key = 0;
-    for (i = 4; i < 7; i++){
-        P4->DIR |= (0x01 << i);
-        P4->OUT &= ~(0x01 << i);
-        __delay_cycles(5000);
-        for (j = 0; j < 4; j++){
-            if (!(P4->IN & BIT(j))){
-                while (!(P4->IN & BIT(j)));
-                if (j == 0)
-                    key = i - 3;
-                else if (j == 1)
-                    key = i;
-                else if (j == 2)
-                    key = i + 3;
-                else
-                    key = i + 6;
-            }
-        }
-        P4->DIR &= ~(0x7F);
-        P4->OUT |= 0x7F;
-    }
-    return key;
-}
-
-void TimerA1_PWM(int dutyCycle){               //runs timer given the specified duty cycle
-    TIMER_A1-> CTL = 0b1001010100;                      //Count up using smclk, clears TAOR register, /2
-    TIMER_A1-> CCR[0] = 37500 - 1;                      //TimerA will count up to 37500-1
-    if (duty == 0)
-        TIMER_A1-> CCR[4] = 0;
-    else
-        TIMER_A1-> CCR[4] = (37500 * dutyCycle / 100) - 1;   //Sets the duty cycle.
-    TIMER_A1-> CCTL[4] = 0b11100000;                    //reset/set mode
-}
+      }
 
 }
