@@ -1,5 +1,6 @@
 #include "Functions_Lib.h"
 
+void TimerA2_PWM(int position)
 {
   TIMER_A2-> CTL = 0b1000010100;                      //Count up using smclk, clears TAOR register, /1
   TIMER_A2-> CCR[0] = 63000 - 1;                      //TimerA will count up to 63000-1
