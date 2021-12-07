@@ -91,30 +91,13 @@ void main(void)
 
 }
 
-void LCD_Init(void)
-{
-    P3->DIR |= (RS|RW|EN); // Make P5 pins output for control
-    P6->DIR = 0xFF;     // Make P6 pins output for data
-
-    SysTick_Delay(30);      // Initialization sequence
-    LCD_Command(0x30);
-    SysTick_Delay(10);
-    LCD_Command(0x30);
-    SysTick_Delay(1);
-    LCD_Command(0x30);
-    LCD_Command(0x38);      // Set 8-bit data, 2-line, 5x7 font
-    LCD_Command(0x06);      // Move cursor right after each char
-    LCD_Command(0x01);      // Clear screen, Move cursor to home
-    LCD_Command(0x0F);      // Turn on display, Cursor blink
-}
-
 void LCD_Command(unsigned char command)
 {
-    P3->OUT &= ~(RS|RW);      // RS = 0, RW = 0
-    P6->OUT = command;      // Put command on data bus
-    P3->OUT |= EN;      // Pulse EN HIGH
+    P6->OUT &= ~(RS|RW);      // RS = 0, RW = 0
+    P9->OUT = command;      // Put command on data bus
+    P6->OUT |= EN;      // Pulse EN HIGH
     SysTick_Delay(1);
-    P3->OUT &= ~EN;     // Clear EN
+    P6->OUT &= ~EN;     // Clear EN
     if(command < 4)
       SysTick_Delay(4);    // Desired command speed
     else
