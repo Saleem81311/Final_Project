@@ -1,5 +1,5 @@
-#include "Functions_Lib.h"
 #include "msp.h"
+#include "Functions_Lib.h"
 
 void LCD_Function(int Menu_Switch)
 {
