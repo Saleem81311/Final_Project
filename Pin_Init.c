@@ -1,6 +1,6 @@
 void Pin_Init()     // Pin initializations
 { 
-  /****************************************************************** RGB Estop Button *****************************************************************/
+  /****************************************************************** RGB Estop Button **************************************************************/
     P1-> SEL0 &=~ BIT7;                                         //emergency stop
     P1-> SEL1 &=~ BIT7;
     P1-> DIR &=~ BIT7;
@@ -29,7 +29,7 @@ void Pin_Init()     // Pin initializations
     P7-> DIR |= BIT4;                                 //sets pin 7.4 as timerA1.4
     P7-> OUT &= ~BIT4;                                //off to start
 
-  /****************************************************************** Keypad Initializations *********************************************************/
+  /****************************************************************** Keypad Initializations ********************************************************/
     P4-> SEL0 &= ~(0x7F);                               //keypad
     P4-> SEL1 &= ~(0x7F);                               //initialize all pins to GPIO
     P4-> DIR &= ~(0x7F);                                //as inputs with pull up resistors
@@ -46,7 +46,7 @@ void Pin_Init()     // Pin initializations
     P6-> IES |= BIT0; // Set pin to interrupt to trigger when it goes high->low
     P6-> IFG &=~ BIT0; //clear P1 interrupt flags
 
-  /************************************************************* Door servo initializations *********************************************************/
+  /************************************************************* Door servo initializations ********************************************************/
     P6-> SEL0 |= (BIT6|BIT7);                                   //servos 1 and 2
     P6-> SEL1 &=~ (BIT6|BIT7);
     P6-> DIR |= (BIT6|BIT7);                                 //sets pin 6.6 and 6.7 as timerA2
