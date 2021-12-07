@@ -1,4 +1,5 @@
 #include "Functions_Lib.h"
+#include "msp.h"
 
 void LCD_Command(unsigned char command)
 {
