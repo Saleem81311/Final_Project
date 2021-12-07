@@ -1,5 +1,6 @@
 #include "Functions_Lib.h"
 
+void Message(char Menu[])
 {
     int i;
 
