@@ -1,5 +1,6 @@
 #include "Functions_Lib.h"
 
+void LCD_Data (unsigned char data)
 {
   P6->OUT |= RS;      // RS = 1
   P6->OUT &= ~RW;     // RW = 0
