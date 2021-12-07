@@ -1,4 +1,6 @@
 #include "Functions_Lib.h"
+
+void LCD_Command(unsigned char command)
 {
   SysTick_Init();
    P6->OUT &= ~(RS|RW);      // RS = 0, RW = 0
