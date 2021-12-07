@@ -7,6 +7,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define RS 0x20        // P6.4 mask
+#define RW 0x40        // Goes to GND since always writing to LCD
+#define EN 0x80        // P6.5 mask
 
 int Read_Keypad (void);                         //function declarations
 void TimerA1_PWM(int dutyCycle);
