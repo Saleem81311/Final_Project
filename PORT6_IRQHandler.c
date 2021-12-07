@@ -1,5 +1,6 @@
 #include "Functions_Lib.h"
 
+void PORT6_IRQHandler(void)
 {
    if(P6->IFG & BIT4)
     {
