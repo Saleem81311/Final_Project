@@ -1,3 +1,5 @@
+#include "Functions_Lib.h"
+
 {
   TIMER_A3-> CTL = 0b1000010100;                      //Count up using smclk, clears TAOR register, /1
   TIMER_A3-> CCR[0] = 10000 - 1;                      //300 Hz
