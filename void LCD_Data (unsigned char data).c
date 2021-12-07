@@ -1,3 +1,5 @@
+#include "Functions_Lib.h"
+
 {
   P6->OUT |= RS;      // RS = 1
   P6->OUT &= ~RW;     // RW = 0
