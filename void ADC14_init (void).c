@@ -1,3 +1,5 @@
+#include "Functions_Lib.h"
+
 {
   ADC14->CTL0 &=~ 0x00000002;          // disable ADC14ENC during configuration
   ADC14->CTL0 = 0b11000101111001000111011110010000;
