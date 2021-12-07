@@ -1,3 +1,4 @@
+#include "msp.h"
 #include "Functions_Lib.h"
 
 void TimerA3_PWM(float duty)
