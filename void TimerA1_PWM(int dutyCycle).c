@@ -1,3 +1,5 @@
+#include "Functions_Lib.h"
+
 {               //runs timer given the specified duty cycle
   TIMER_A1-> CTL = 0b1001010100;                      //Count up using smclk, clears TAOR register, /2
   TIMER_A1-> CCR[0] = 37500 - 1;                      //TimerA will count up to 37500-1
