@@ -185,13 +185,6 @@ void delay_micro(unsigned micro){       //delays desired time in us
     while(!(SysTick->CTRL & BIT(16)));
 }
 
-void delay_ms(unsigned ms){             //delays desired time in ms
-    SysTick->LOAD = ms*3000 - 1;
-    SysTick->VAL = 0;
-    SysTick->CTRL = 5;
-    while(!(SysTick->CTRL & BIT(16)));
-}
-
 void printString(char string[]){        //prints a string of characters
     int i;
     for (i = 0; i < (strlen(string)); i++){
