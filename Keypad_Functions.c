@@ -1,4 +1,7 @@
-{ //detects and reads key pressed
+#include "Functions_Lib.h"
+
+int Read_Keypad (void)      //detects and reads key pressed
+{ 
     int i, j, key = 0;
     for (i = 4; i < 7; i++)
     {
