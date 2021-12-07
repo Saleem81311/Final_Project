@@ -170,24 +170,3 @@ void ADC14_IRQHandler(void){
         TimerA3_PWM((int)(duty * 100));
     }
 }
-
-void SysTick_Init(){                    //initialize system timer
-    SysTick->CTRL &= ~BIT0;             //clears enable to stop the counter
-    SysTick->LOAD = 0x00FFFFFF;         //sets the period... note: (3006600/1000 - 1) = 1ms
-    SysTick->VAL = 0;                   //clears the value
-    SysTick->CTRL = 0x00000005;         //enable SysTick, no uint8_terrupts
-}
-
-void delay_micro(unsigned micro){       //delays desired time in us
-    SysTick->LOAD = micro*3 - 1;
-    SysTick->VAL = 0;
-    SysTick->CTRL = 5;
-    while(!(SysTick->CTRL & BIT(16)));
-}
-
-void printString(char string[]){        //prints a string of characters
-    int i;
-    for (i = 0; i < (strlen(string)); i++){
-            dataWrite(string[i]);
-    }
-}
