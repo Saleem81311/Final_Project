@@ -4,9 +4,9 @@
 #include <math.h>
 #include <stdint.h>
 #include <string.h>
-#define RS 0x20        // P3.5 mask
-#define RW 0x40        // P3.6 mask
-#define EN 0x80        // P3.7 mask
+#define RS 0x20        // P6.4 mask
+#define RW 0x40        // Goes to GND since always writing to LCD
+#define EN 0x80        // P6.5 mask
 
 void LCD_Command(unsigned char command);
 void LCD_Data(unsigned char data);
@@ -94,7 +94,7 @@ void main(void)
 void LCD_Init(void)
 {
     P3->DIR |= (RS|RW|EN); // Make P5 pins output for control
-    P5->DIR = 0xFF;     // Make P6 pins output for data
+    P6->DIR = 0xFF;     // Make P6 pins output for data
 
     SysTick_Delay(30);      // Initialization sequence
     LCD_Command(0x30);
@@ -111,7 +111,7 @@ void LCD_Init(void)
 void LCD_Command(unsigned char command)
 {
     P3->OUT &= ~(RS|RW);      // RS = 0, RW = 0
-    P5->OUT = command;      // Put command on data bus
+    P6->OUT = command;      // Put command on data bus
     P3->OUT |= EN;      // Pulse EN HIGH
     SysTick_Delay(1);
     P3->OUT &= ~EN;     // Clear EN
@@ -125,7 +125,7 @@ void LCD_Data(unsigned char data)
 {
     P3->OUT |= RS;      // RS = 1
     P3->OUT &= ~RW;     // RW = 0
-    P5->OUT = data;     // Put data on bus
+    P6->OUT = data;     // Put data on bus
     P3->OUT |= EN;      // Pulse EN
     SysTick_Delay(1);
     P3->OUT &= ~EN;     // Clear EN
