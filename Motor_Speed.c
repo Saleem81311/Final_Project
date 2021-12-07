@@ -1,5 +1,6 @@
 #include "Functions_Lib.h"
 
+void Set_Motor_Speed(void)
 {
   int num = 0, speed = 0;
   num = Read_Keypad();                   //get key press from the keypad
