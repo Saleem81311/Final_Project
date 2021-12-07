@@ -1,3 +1,5 @@
+#include "Functions_Lib.h"
+
 {
   int num = 0, speed = 0;
   num = Read_Keypad();                   //get key press from the keypad
