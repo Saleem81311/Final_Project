@@ -1,5 +1,10 @@
 #include "msp.h"
 #include "Functions_Lib.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <math.h>
 
 void TimerA1_PWM(int dutyCycle)
 {               //runs timer given the specified duty cycle
