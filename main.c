@@ -4,42 +4,30 @@
  * Description: Program to combine all aspects of control system together.
  *****************************************************************************************************************/
 #include "msp.h"
-#include "Functions_Lib.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
 #include <math.h>
-float nADC;
-float duty = 100;
-int dutyR = 100, dutyG = 100, dutyB = 100;
-int tempR = 0, tempG = 0, tempB = 0;
+
 int arrayToDuty(int code[]);
 void PORT1_IRQHandler(void);
 void RGB_init(void);
 void TimerA0_PWM(int duty1, int duty2, int duty3);
-//int Read_Keypad(void);
-
 void ADC14_IRQHandler(void);
 void ADC14_init (void);
 void Door_Control (int pos);
-char EStop_Function(char Operation_State);   // This is the EStop function to stop everything in case of an emergency
 int Read_Keypad (void);      //detects and reads key pressed
-void LCD_Command(unsigned char command);
-void LCD_Data (unsigned char data);
-void LCD_Function(int Menu_Switch);
-void Message(char Menu[]);
 void Set_Motor_Speed(void);
 void PORT6_IRQHandler(void);
-void Pin_Init();     // Pin initializations
-void SysTick_Delay(uint16_t delay);
-void SysTick_Init();
+void Pin_Init(void);     // Pin initializations
+void SysTick_Init(void);
 void TimerA1_PWM(int dutyCycle);
 void TimerA2_PWM(int position);
 void TimerA3_PWM(float duty);
 void pushNibble(uint8_t nibble);
-void pulseEnablePin();
-void intializeDisplay();
+void pulseEnablePin(void);
+void intializeDisplay(void);
 void delay_micro(unsigned micro);
 void delay_ms(unsigned ms);
 void pushByte(uint8_t byte);
@@ -47,9 +35,14 @@ void commandWrite(uint8_t command);
 void dataWrite(uint8_t data);
 void printString(char string[]);
 
+float nADC;
+float duty = 100;
+int dutyR = 0, dutyG = 0, dutyB = 0;
+int tempR = 0, tempG = 0, tempB = 0;
+int val = 0;
+
 enum states     //enum for the switch states
 {
-    DEFAULT_LIGHTS,
     RED_ON, //red menu
     BLUE_ON, //blue menu
     GREEN_ON, //green menu
@@ -60,47 +53,105 @@ enum states     //enum for the switch states
 
 };
 
+enum states state = LCD_MENU;
+
 void main(void)
 {
-
      WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD; // stop watchdog timer
-     Pin_Init();                                //initialize the pins and the timer
-     ADC14_init();
+
+     int num, i = 0;
+     int code[3];
+
+     Pin_Init();            //initialize the pins and the timer
      SysTick_Init();
+     ADC14_init();
      TimerA0_PWM(dutyR,dutyG,dutyB);
      RGB_init();
      intializeDisplay();
-     int num, i = 0;
-     int code[3];
-     enum states state = LCD_MENU;
 
      NVIC_EnableIRQ(PORT6_IRQn);        // Enabling PORT6 IRQ interrupt
      NVIC_EnableIRQ(ADC14_IRQn);        // Enabling ADC14 IRQ interrupt
      NVIC_EnableIRQ(PORT1_IRQn);        // Enabling PORT1 IRQ interrupt for RGB LEDs
      __enable_interrupts();
 
-         //TimerA1_PWM(100);
      while(1)
       {
-        switch(state)
-          {
+        switch(state){
             case LCD_MENU:     // Display menu case
-               commandWrite(1);
-               printString("Hello");
-               break;
+                commandWrite(1);
+                printString("   Main Menu    ");
+                printString("   (2) Motor            ");
+                printString("   (1) Doors    ");
+                printString("   (3) Lights   ");
+                while(1)
+                   {
+                     num = Read_Keypad();
+                     if((num != 10) && (num < 12) && (num > 0))     //Continues if valid key pressed.
+                       {
+                         if(num == 11)
+                            num = 0;
+                         if(num == 1)
+                           {
+                             state = DOORS;
+                             break;
+                           }
+                         else if(num == 2)
+                            {
+                              state = MOTOR;
+                              break;
+                            }
+                         else if(num == 3)
+                            {
+                              state = LIGHTS;
+                              break;
+                            }
+                         else
+                             continue;
+                      }
+                   }
 
-            case LIGHTS:
-               printString("Lights are active");
-               state = DEFAULT_LIGHTS;
                break;
 
             case DOORS:
-                printString("Opening doors..");
-                break;
+                commandWrite(1);
+                printString("   DOOR MENU    ");
+                printString("   (2) Close            ");
+                printString("   (1) Open     ");
+                printString("   (0) Home     ");
+                while(1)
+                   {
+                     num = Read_Keypad();
+                     if((num != 10) && (num < 12) && (num > 0))     //Continues if valid key pressed.
+                       {
+                         if(num == 11)
+                            num = 0;
+                         if(num == 1)
+                           {
+                             Door_Control(1);
+                           }
+                         else if(num == 2)
+                            {
+                              Door_Control(0);
+                            }
+                         else if(num == 0)
+                            {
+                              state = LCD_MENU;
+                              break;
+                            }
+                         else
+                             continue;
+                      }
+                   }
+
+               break;
 
             case RED_ON:      // RED LED toggle case
                i = 0;
-               printf("\nRed - Enter 3 digit duty cycle\n");
+               commandWrite(1);
+               printString("   Enter PWM    ");
+               printString("   3 Digits             ");
+               printString("   Duty Cycle   ");
+               printString("  From 0 to 100 ");
                while(1)
                  {
                    num = Read_Keypad();
@@ -118,12 +169,16 @@ void main(void)
 
                   dutyR = arrayToDuty(code);
                   TimerA0_PWM(dutyR, dutyG, dutyB);
-                  state = DEFAULT_LIGHTS;
+                  state = LCD_MENU;
                   break;
 
               case GREEN_ON:      // GREEN LED toggle case
                  i = 0;
-                 printf("\nGreen - Enter 3 digit duty cycle\n");
+                 commandWrite(1);
+                 printString("   Enter PWM    ");
+                 printString("   3 Digits             ");
+                 printString("   Duty Cycle   ");
+                 printString("  From 0 to 100 ");
                  while(1)
                  {
                    num = Read_Keypad();
@@ -141,12 +196,16 @@ void main(void)
 
                     dutyG = arrayToDuty(code);
                     TimerA0_PWM(dutyR, dutyG, dutyB);
-                    state = DEFAULT_LIGHTS;
+                    state = LCD_MENU;
                     break;
 
                 case BLUE_ON:     // BLUE LED toggle case
                    i = 0;
-                   printf("\nBlue - Enter 3 digit duty cycle\n");
+                   commandWrite(1);
+                   printString("   Enter PWM    ");
+                   printString("   3 Digits             ");
+                   printString("   Duty Cycle   ");
+                   printString("  From 0 to 100 ");
                    while(1)
                        {
                          num = Read_Keypad();
@@ -164,11 +223,15 @@ void main(void)
 
                       dutyB = arrayToDuty(code);
                       TimerA0_PWM(dutyR, dutyG, dutyB);
-                      state = DEFAULT_LIGHTS;
+                      state = LCD_MENU;
                       break;
 
-                  case DEFAULT_LIGHTS:     // Default RGB case
-                     printf("\nPress 1 for Red, 2 for Green, or 3 for blue\n");
+                  case LIGHTS:     // Default RGB case
+                      commandWrite(1);
+                      printString("  LIGHTS MENU   ");
+                      printString("   (2) Green            ");
+                      printString("   (1) Red      ");
+                      printString("   (3) Blue     ");
                      while(1)
                         {
                           num = Read_Keypad();
@@ -197,17 +260,25 @@ void main(void)
                          }
 
                          break;
+                  case MOTOR:
+                      commandWrite(1);
+                      printString("   MOTOR MENU   ");
+                      printString("   From 0 to 9          ");
+                      printString("   Enter Speed  ");
+                      printString("   (#) Home     ");
+                      while (1){
+                          Set_Motor_Speed();
+                          if (val == 1) {
+                              val = 0;
+                              state = LCD_MENU;
+                              break;
+                          }
+                      }
 
                    default:
                       state = LCD_MENU;
                       break;
-             };
-         //Set_Motor_Speed();
-        /* Door_Control(1);
-         __delay_cycles(3000000);
-         Door_Control(0);
-         __delay_cycles(3000000);   */
-
+             }
       }
 }
 
@@ -228,7 +299,6 @@ void PORT6_IRQHandler(void)     // PORT6 IRQ Handler for motor
       __delay_cycles(15000);
         if(!(P6->IN & BIT0))       // if statement for checking if the button is pressed or not
         {
-          printf("Emergency Stop!\n");
           TimerA1_PWM(0);
           P6->IFG &= ~BIT0;     //clearing the interrupt flag
         }
@@ -250,13 +320,6 @@ void RGB_init(void)
     P2->SEL1 &= ~(BIT4|BIT5|BIT6);
     P2->DIR |= (BIT4|BIT5|BIT6);        //Set LED pins to Outputs
     P2->OUT &= ~(BIT4|BIT5|BIT6);       //Start with a low output
-
-    P4->SEL0 &= ~(0x7F);                                                        //initialize all pins to GPIO
-    P4->SEL1 &= ~(0x7F);                                                        //as inputs with pull up resistors
-    P4->DIR &= ~(0x7F);
-    P4->REN |= 0x7F;
-    P4->OUT |= 0x7F;
-
 }
 
 void TimerA0_PWM(int duty1, int duty2, int duty3)       //runs timer given the specified duty cycle
@@ -325,35 +388,38 @@ void PORT1_IRQHandler(void)
 {
     if(P1->IFG & BIT7)
       {
-        while(!(P1->IN & BIT7));
-        if(dutyR + dutyG + dutyB)
-          {
-            printf("Disabled\n");
-            tempR=dutyR;    tempG=dutyG;    tempB=dutyB;
-            dutyR=0;    dutyG=0;    dutyB=0;
-            TimerA0_PWM(0,0,0);
+        __delay_cycles(3000);
+        if (!(P1->IN & BIT7)){
+            if(dutyR + dutyG + dutyB)
+              {
+                tempR=dutyR;    tempG=dutyG;    tempB=dutyB;
+                dutyR=0;    dutyG=0;    dutyB=0;
+                TimerA0_PWM(0,0,0);
+              }
+             else
+               {
+                 dutyR = tempR;  dutyG=tempG;    dutyB=tempB;
+                 TimerA0_PWM(dutyR, dutyG, dutyB);
+               }
+             P1->IFG = 0;
           }
-     else
-       {
-         printf("Enabled\n");
-         dutyR = tempR;  dutyG=tempG;    dutyB=tempB;
-         TimerA0_PWM(dutyR, dutyG, dutyB);
-       }
-         P1->IFG = 0;
       }
 }
 
 void Set_Motor_Speed(void)
 {
-  int num = 0, speed = 100;
-  TimerA1_PWM(speed);
+  int num = 0;
+  volatile int speed = 100;
   num = Read_Keypad();                   //get key press from the keypad
-    if ((num != 10) && (num != 12) && (num > 0) && (num < 13))
+    if ((num != 10) && (num > 0) && (num < 13))
     {
+        if (num == 12){
+            val = 1;
+            return;
+        }
         if (num == 11)
             num = 0;
         speed = num * 10;
-        printf("Speed Entered: %d\n", num);    //confirms speed
         TimerA1_PWM(speed);                        //changes timer to new PWM
     }
 }
@@ -441,26 +507,19 @@ void TimerA1_PWM(int dutyCycle)     //runs timer given the specified duty cycle
   TIMER_A1-> CCTL[1] = 0b11100000;                    //reset/set mode
 }
 
-void TimerA2_PWM(int position)
-{
-  TIMER_A2-> CTL = 0b1000010100;                      //Count up using smclk, clears TAOR register, /1
-  TIMER_A2-> CCR[0] = 63000 - 1;                      //TimerA will count up to 63000-1
-   if (position == 0)
-   {
-      TIMER_A2-> CCR[4] = 2700 - 1;
-      TIMER_A2-> CCR[3] = 2700 - 1;
-      TIMER_A2-> CCR[2] = 6300 - 1;
-   }
-
-   if (position == 1)
-   {
-      TIMER_A2-> CCR[4] = 6300 - 1;
-      TIMER_A2-> CCR[3] = 6300 - 1;
-      TIMER_A2-> CCR[2] = 2700 - 1;
-   }
-  TIMER_A2-> CCTL[4] = 0b11100000;
-  TIMER_A2-> CCTL[3] = 0b11100000;                    //reset/set mode
-  TIMER_A2-> CCTL[2] = 0b11100000;
+void TimerA2_PWM(int position){               //runs timer given the specified duty cycle
+    TIMER_A2-> CTL = 0b1000010100;                      //Count up using smclk, clears TAOR register, /1
+    TIMER_A2-> CCR[0] = 63000 - 1;                      //TimerA will count up to 63000-1
+    if (position == 0){
+        TIMER_A2-> CCR[4] = 2200 - 1;
+        TIMER_A2-> CCR[3] = 6000 - 1;
+    }
+    if (position == 1){
+        TIMER_A2-> CCR[4] = 6300 - 1;
+        TIMER_A2-> CCR[3] = 2500 - 1;
+    }
+    TIMER_A2-> CCTL[4] = 0b11100000;
+    TIMER_A2-> CCTL[3] = 0b11100000;                    //reset/set mode
 }
 
 void TimerA3_PWM(float duty)
@@ -508,14 +567,6 @@ void SysTick_Init()
   SysTick->VAL = 32;
   SysTick->CTRL = 0x00000005;
 }
-/*
-void SysTick_Delay(uint16_t delay)
-{
-    SysTick->LOAD = (delay*3000);
-    SysTick->VAL = 5;
-    SysTick->CTRL = 1;
-    while((SysTick->CTRL & 0x00010000) == 0);
-}   */
 
 void intializeDisplay()             //function to initialize lcd
 {
@@ -533,7 +584,7 @@ void intializeDisplay()             //function to initialize lcd
 
     commandWrite(8);
     delay_micro(100);
-    commandWrite(0x0F);
+    commandWrite(0x0C);
     delay_micro(100);
     commandWrite(1);
     delay_micro(100);
