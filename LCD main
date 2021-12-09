@@ -2,7 +2,8 @@
  * Author: Tennison Hoffmann
  * Date: 10/21/2021
  * Group: Figurski, Griggs-Taylor, Hoffmann
- * Description: Program to initialize LCD with the cursor blinking in the home position.
+ * Description: Program to print group names and class section to LCD, then scroll a phrase from right to left
+ * across screen.
  *****************************************************************************************************************/
 
 #include "msp.h"
@@ -13,7 +14,6 @@
 //P4.7 to P4.4 are DB7 to DB4
 //P4.2 is Enable
 //P4.3 is RS
-
 void SysTick_Init();
 void pushNibble(uint8_t nibble);
 void pulseEnablePin();
@@ -23,6 +23,9 @@ void delay_ms(unsigned ms);
 void pushByte(uint8_t byte);
 void commandWrite(uint8_t command);
 void dataWrite(uint8_t data);
+void printString(char string[]);
+
+float nADC, duty = 100;
 
 void main(void){
     WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;     // stop watchdog timer
@@ -32,18 +35,19 @@ void main(void){
     P4->DIR  |=  (0xFF);
     P4->OUT  &= ~(0xFF);
 
-    P8->SEL0 &= ~BIT2;            //P4.1-P4.7 GPIO, Outputs, default of LOW
-    P8->SEL1 &= ~BIT2;
-    P8->DIR  |=  BIT2;
-    P8->OUT  |= BIT2;
+    P8-> SEL0 |= BIT2;                              //lcd backlight PWM output
+    P8-> SEL1 &=~ BIT2;
+    P8-> DIR |= BIT2;                                 //sets pin 8.2 as timerA3.2
+
+    P6-> SEL0 |= BIT1;                     //potentiometer input
+    P6-> SEL1 |= BIT1;                       // configure pin 6.1 for A14 input
+    P6-> DIR  &= ~BIT1;                      //Analog INPUT
 
     SysTick_Init();
-
     intializeDisplay();
 
     while(1)
     {
-
     }
 }
 void intializeDisplay()             //function to initialize lcd
@@ -62,7 +66,7 @@ void intializeDisplay()             //function to initialize lcd
 
     commandWrite(8);
     delay_micro(100);
-    commandWrite(0x0F);
+    commandWrite(0x0C);
     delay_micro(100);
     commandWrite(1);
     delay_micro(100);
@@ -100,7 +104,8 @@ void delay_ms(unsigned ms){             //delays desired time in ms
 
 void pushNibble(uint8_t nibble)         //pushes 4 bits onto pins
 {
-    P4->OUT = ((nibble & 0x0F) << 4);
+    P4->OUT &= (0x0F);
+    P4->OUT |= ((nibble & 0x0F) << 4);
     pulseEnablePin();
 }
 
@@ -119,4 +124,11 @@ void dataWrite(uint8_t data){           //sends byte of data to lcd
     P4->OUT |= BIT3;
     delay_ms(10);
     pushByte(data);
+}
+
+void printString(char string[]){        //prints a string of characters
+    int i;
+    for (i = 0; i < (strlen(string)); i++){
+            dataWrite(string[i]);
+    }
 }
